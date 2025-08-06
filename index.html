@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prince Bairagi - Pianist</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Raleway', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            overflow-x: hidden;
+            background-color: #000;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .hero-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .animated-background {
+            position: absolute;
+            width: 400%;
+            height: 100%;
+            background: linear-gradient(45deg, #111111, #222222, #111111, #000000);
+            background-size: 400% 400%;
+            animation: gradientFlow 20s ease infinite;
+        }
+        
+        @keyframes gradientFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        .floating-notes {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 24px;
+            animation: floatNote 10s linear infinite;
+        }
+        
+        @keyframes floatNote {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.3;
+            }
+            80% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: #d4af37;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: #d4af37;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .piano-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .piano-animation.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .piano {
+            display: flex;
+            height: 160px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .key {
+            position: relative;
+            height: 100%;
+            flex-grow: 1;
+            cursor: pointer;
+        }
+        
+        .white {
+            background-color: white;
+            border: 1px solid #ccc;
+            z-index: 1;
+        }
+        
+        .black {
+            background-color: black;
+            width: 8%;
+            height: 60%;
+            margin: 0 -4% 0 -4%;
+            z-index: 2;
+        }
+        
+        .page {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .page.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .gallery-item {
+            transition: transform 0.3s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .concert-card {
+            perspective: 1000px;
+        }
+        
+        .concert-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        
+        .concert-card:hover .concert-card-inner {
+            transform: rotateY(180deg);
+        }
+        
+        .concert-card-front, .concert-card-back {
+            backface-visibility: hidden;
+        }
+        
+        .concert-card-back {
+            transform: rotateY(180deg);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Piano key animation */
+        .white:active, .white.active {
+            background-color: #f0f0f0;
+            transform: translateY(2px);
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.2);
+        }
+        
+        .black:active, .black.active {
+            background-color: #333;
+            transform: translateY(2px);
+            box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Continuous Background Animation -->
+    <div class="hero-animation">
+        <div class="animated-background"></div>
+    </div>
+    
+    <!-- Floating Music Notes -->
+    <div id="floating-notes-container"></div>
+    
+    <!-- Piano Transition Animation -->
+    <div class="piano-animation" id="pianoTransition">
+        <div class="piano">
+            <div class="key white" data-note="C"></div>
+            <div class="key black" data-note="Cs"></div>
+            <div class="key white" data-note="D"></div>
+            <div class="key black" data-note="Ds"></div>
+            <div class="key white" data-note="E"></div>
+            <div class="key white" data-note="F"></div>
+            <div class="key black" data-note="Fs"></div>
+            <div class="key white" data-note="G"></div>
+            <div class="key black" data-note="Gs"></div>
+            <div class="key white" data-note="A"></div>
+            <div class="key black" data-note="As"></div>
+            <div class="key white" data-note="B"></div>
+        </div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-black bg-opacity-80 backdrop-filter backdrop-blur-lg py-4 px-6 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-gold-500" onclick="showPage('home')">
+                <span class="text-white">PRINCE</span> <span class="text-yellow-400">BAIRAGI</span>
+            </a>
+            
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="nav-link text-white" onclick="showPageWithTransition('home')">Home</a>
+                <a href="About Page.html" class="nav-link text-white" onclick="showPageWithTransition('about')">About</a>
+                <a href="3.htm" class="nav-link text-white" onclick="showPageWithTransition('repertoire')">Repertoire</a>
+                <a href="Gallery.htm" class="nav-link text-white" onclick="showPageWithTransition('gallery')">Gallery</a>
+                <a href="5.htm" class="nav-link text-white" onclick="showPageWithTransition('concerts')">Concerts</a>
+                <a href="6.htm" class="nav-link text-white" onclick="showPageWithTransition('contact')">Contact Us</a>
+            </div>
+            
+            <button class="md:hidden text-white focus:outline-none" onclick="toggleMobileMenu()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-black bg-opacity-90 mt-2 py-4 px-6">
+           <a href="index.html" class="nav-link text-white" onclick="showPageWithTransition('home')">Home</a>
+           <a href="About Page.html" class="nav-link text-white" onclick="showPageWithTransition('about')">About</a>
+           <a href="3.htm" class="nav-link text-white" onclick="showPageWithTransition('repertoire')">Repertoire</a>
+           <a href="Gallery.htm" class="nav-link text-white" onclick="showPageWithTransition('gallery')">Gallery</a>
+           <a href="5.htm" class="nav-link text-white" onclick="showPageWithTransition('concerts')">Concerts</a>
+           <a href="6.htm" class="nav-link text-white" onclick="showPageWithTransition('contact')">Contact Us</a>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="pt-24 md:pt-28 pb-16">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <section class="max-w-5xl mx-auto px-6">
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/2 mb-12 md:mb-0">
+                        <img src="123.png" alt="Prince Bairagi at grand piano in concert hall, dressed in formal black suit, fingers on the keys with natural lighting from chandeliers" class="rounded-lg shadow-xl transform transition-all hover:scale-105 duration-500">
+                    </div>
+                    <div class="md:w-1/2 md:pl-12">
+                        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                            <span class="text-white">Prince</span> 
+                            <span class="text-yellow-400">Bairagi</span>
+                        </h1>
+                        <h2 class="text-2xl md:text-3xl font-light mb-8 text-gray-300">Pianist | Composer | Performer</h2>
+                        <p class="text-lg text-gray-300 mb-8 leading-relaxed">
+                            Young pianist exploring the art of performance and composition. Passionate about blending Indian classical emotion with cinematic and western 				    styles.
+                        </p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full transition-all" onclick="showPageWithTransition('concerts')">
+                                Upcoming Concerts
+                            </a>
+                            <a href="6.htm" class="px-8 py-3 border border-yellow-600 hover:border-yellow-700 text-yellow-500 hover:text-yellow-300 rounded-full transition-all" onclick="showPageWithTransition('contact')">
+                                Contact
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="max-w-5xl mx-auto px-6 mt-24">
+                <h2 class="text-3xl font-bold mb-12 text-center">Featured Performances</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="concert-card rounded-lg overflow-hidden shadow-lg">
+                        <div class="concert-card-inner relative h-full">
+                            <div class="concert-card-front">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/78860646-de7f-49d8-8139-14032c7135c0.png" alt="Prince Bairagi performing Beethoven's Moonlight Sonata at Carnegie Hall, dramatic stage lighting highlighting the piano" class="w-full h-48 object-cover">
+                                <div class="p-6 bg-gray-900">
+                                    <h3 class="text-xl font-bold mb-2">Beethoven's Moonlight Sonata</h3>
+                                    <p class="text-gray-400">Carnegie Hall, New York</p>
+                                </div>
+                            </div>
+                            <div class="concert-card-back bg-gray-900 p-6">
+                                <h3 class="text-xl font-bold mb-2">Performance Details</h3>
+                                <p class="text-gray-300 mb-4">Recorded live on September 15, 2022</p>
+                                <p class="text-gray-300 mb-4">Critically acclaimed interpretation of this classical masterpiece</p>
+                                <a href="#" class="text-yellow-500 hover:text-yellow-300 underline">Watch Now</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="concert-card rounded-lg overflow-hidden shadow-lg">
+                        <div class="concert-card-inner relative h-full">
+                            <div class="concert-card-front">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/50b049e7-d3d1-498a-881d-bb651223e343.png" alt="Prince Bairagi playing Chopin's Nocturnes in Vienna, elegant setting with gilded columns" class="w-full h-48 object-cover">
+                                <div class="p-6 bg-gray-900">
+                                    <h3 class="text-xl font-bold mb-2">Ve Haaniyaan X Samjhawan</h3>
+                                    <p class="text-gray-400">Youtube</p>
+                                </div>
+                            </div>
+                            <div class="concert-card-back bg-gray-900 p-6">
+                                <h3 class="text-xl font-bold mb-2">Performance Details</h3>
+                                <p class="text-gray-300 mb-4">June 14, 2025</p>
+                                <p class="text-gray-300 mb-4">Emotional mashup blending soulful Bollywood melodies on solo piano.</p>
+                                <a href="https://youtu.be/a3b9uvm4yJA" class="text-yellow-500 hover:text-yellow-300 underline">Listen Now</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="concert-card rounded-lg overflow-hidden shadow-lg">
+                        <div class="concert-card-inner relative h-full">
+                            <div class="concert-card-front">
+                                <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7e1b2f6f-2f13-40bd-8057-81866528b7c0.png" alt="Modern composition premiere in Berlin's Elbphilharmonie, futuristic lighting design" class="w-full h-48 object-cover">
+                                <div class="p-6 bg-gray-900">
+                                    <h3 class="text-xl font-bold mb-2">Thunder Crown</h3>
+                                    <p class="text-gray-400">Youtube</p>
+                                </div>
+                            </div>
+                            <div class="concert-card-back bg-gray-900 p-6">
+                                <h3 class="text-xl font-bold mb-2">Performance Details</h3>
+                                <p class="text-gray-300 mb-4">November 22, 2023</p>
+                                <p class="text-gray-300 mb-4">Original composition fusing classical and electronic elements</p>
+                                <a href="https://youtu.be/ZRFu8MjYbQQ" class="text-yellow-500 hover:text-yellow-300 underline">Learn More</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- About Page -->
+        <div id="about" class="page">
+            <section class="max-w-5xl mx-auto px-6 py-12">
+                <h2 class="text-4xl font-bold mb-12 text-center">About Prince Bairagi</h2>
+                
+                <div class="flex flex-col md:flex-row mb-16">
+                    <div class="md:w-1/3 mb-8 md:mb-0">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/82cd836e-160e-450c-a833-1fc0b31af569.png" alt="Prince Bairagi portrait in formal attire standing beside a grand piano, thoughtful expression" class="rounded-lg shadow-lg w-full">
+                    </div>
+                    <div class="md:w-2/3 md:pl-12">
+                        <h3 class="text-2xl font-bold mb-6 text-yellow-400">Biography</h3>
+                        <p class="text-lg text-gray-300 mb-6 leading-relaxed">
+                            Born into a musical family, Prince Bairagi began his piano studies at the age of five. 
+                            His exceptional talent was quickly recognized, leading to his first public performance 
+                            at age seven. He studied at the prestigious Juilliard School under the tutelage of 
+                            Maestro Richard Kinley, graduating with highest honors.
+                        </p>
+                        <p class="text-lg text-gray-300 mb-6 leading-relaxed">
+                            Prince's performances are known for their emotional depth and technical precision. 
+                            He has developed a unique voice that honors classical traditions while embracing 
+                            contemporary innovations. His 2022 recording of Beethoven's sonatas received 
+                            the Gramophone Editor's Choice award.
+                        </p>
+                        <p class="text-lg text-gray-300 mb-6 leading-relaxed">
+                            When not performing, Prince dedicates time to composing original works and mentoring 
+                            young musicians through his foundation. He believes music is the universal language 
+                            that can bridge cultures and generations.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-900 bg-opacity-70 rounded-lg p-8 mb-16">
+                    <h3 class="text-2xl font-bold mb-8 text-center">Education & Achievements</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-xl font-bold mb-4 text-yellow-400">Education</h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <span class="text-yellow-500 mr-2">•</span>
+                                    <span class="text-gray-300">Juilliard School - Artist Diploma</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-yellow-500 mr-2">•</span>
+                                    <span class="text-gray-300">Royal College of Music - Master's</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-yellow-500 mr-2">•</span>
+                                    <span class="text-gray-300">Moscow Conservatory - Summer Studies</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-xl font-bold mb-4 text-yellow-400">Awards</h4>
+                            <ul class="space-y-3">
+                                <li class="flex items-start">
+                                    <span class="text-yellow-500 mr-2">•</span>
+                                    <span class="text-gray-300">Van Cliburn International Competition - Gold Medal</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-yellow-500 mr-2">•</span>
+                                    <span class="text-gray-300">Gramophone Editor's Choice 2022</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-yellow-500 mr-2">•</span>
+                                    <span class="text-gray-300">International Chopin Competition - Finalist</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Repertoire Page -->
+        <div id="repertoire" class="page">
+            <section class="max-w-5xl mx-auto px-6 py-12">
+                <h2 class="text-4xl font-bold mb-12 text-center">Repertoire</h2>
+                
+                <div class="mb-12">
+                    <h3 class="text-2xl font-bold mb-6 text-yellow-400">Solo Piano</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                            <h4 class="text-xl font-bold mb-3 text-white">Beethoven</h4>
+                            <ul class="space-y-2">
+                                <li class="text-gray-300">Piano Sonata No. 14 "Moonlight"</li>
+                                <li class="text-gray-300">Piano Sonata No. 21 "Waldstein"</li>
+                                <li class="text-gray-300">Piano Sonata No. 29 "Hammerklavier"</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                            <h4 class="text-xl font-bold mb-3 text-white">Chopin</h4>
+                            <ul class="space-y-2">
+                                <li class="text-gray-300">Ballade No. 1 in G minor</li>
+                                <li class="text-gray-300">Nocturnes (Complete)</li>
+                                <li class="text-gray-300">Études Op. 10, No. 3,4,12</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                            <h4 class="text-xl font-bold mb-3 text-white">Rachmaninoff</h4>
+                            <ul class="space-y-2">
+                                <li class="text-gray-300">Prelude in C# minor</li>
+                                <li class="text-gray-300">Prelude in G minor</li>
+                                <li class="text-gray-300">Études-Tableaux Op. 39</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                            <h4 class="text-xl font-bold mb-3 text-white">Liszt</h4>
+                            <ul class="space-y-2">
+                                <li class="text-gray-300">Liebesträume No. 3</li>
+                                <li class="text-gray-300">Hungarian Rhapsody No. 2</li>
+                                <li class="text-gray-300">Transcendental Étude No. 10</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                            <h4 class="text-xl font-bold mb-3 text-white">Debussy</h4>
+                            <ul class="space-y-2">
+                                <li class="text-gray-300">Clair de Lune</li>
+                                <li class="text-gray-300">Children's Corner</li>
+                                <li class="text-gray-300">Preludes Book I</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                            <h4 class="text-xl font-bold mb-3 text-white">Original Compositions</h4>
+                            <ul class="space-y-2">
+                                <li class="text-gray-300">"Reflections" Suite</li>
+                                <li class="text-gray-300">"Monsoon Preludes"</li>
+                                <li class="text-gray-300">"Urban Etudes"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-2xl font-bold mb-6 text-yellow-400">Collaborative Works</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                            <h4 class="text-xl font-bold mb-3 text-white">Concertos</h4>
+                            <ul class="space-y-2">
+                                <li class="text-gray-300">Beethoven Piano Concerto No. 5 "Emperor"</li>
+                                <li class="text-gray-300">Rachmaninoff Piano Concerto No. 2</li>
+                                <li class="text-gray-300">Grieg Piano Concerto in A minor</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                            <h4 class="text-xl font-bold mb-3 text-white">Chamber Music</h4>
+                            <ul class="space-y-2">
+                                <li class="text-gray-300">Brahms Piano Quintet</li>
+                                <li class="text-gray-300">Franck Violin Sonata</li>
+                                <li class="text-gray-300">Shostakovich Piano Trio No. 2</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                            <h4 class="text-xl font-bold mb-3 text-white">Collaborations</h4>
+                            <ul class="space-y-2">
+                                <li class="text-gray-300">With Yo-Yo Ma - Bach Cello Suites</li>
+                                <li class="text-gray-300">With Joshua Bell - Beethoven Violin Sonatas</li>
+                                <li class="text-gray-300">With Lang Lang - Piano Duets</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Gallery Page -->
+        <div id="gallery" class="page">
+            <section class="max-w-5xl mx-auto px-6 py-12">
+                <h2 class="text-4xl font-bold mb-12 text-center">Gallery</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+                    <div class="gallery-item rounded-lg overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/079e7ce4-c475-4077-bd2f-517706ba4dc1.png" alt="Prince Bairagi in mid-performance at Carnegie Hall, intense concentration on his face with dramatic lighting" class="w-full h-64 object-cover">
+                        <div class="p-4 bg-gray-900">
+                            <h3 class="text-xl font-bold mb-2 text-white">Carnegie Hall Performance</h3>
+                            <p class="text-gray-400">2022</p>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-item rounded-lg overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/f5e23029-e0a8-4c6e-8ea7-db294c1e9409.png" alt="Prince Bairagi teaching masterclass with young pianists gathered around the piano" class="w-full h-64 object-cover">
+                        <div class="p-4 bg-gray-900">
+                            <h3 class="text-xl font-bold mb-2 text-white">Masterclass in Paris</h3>
+                            <p class="text-gray-400">2023</p>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-item rounded-lg overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/acfd1bc2-4f20-40de-a29e-a57c02a6f171.png" alt="Recording session in Berlin studio with vintage microphones around the piano" class="w-full h-64 object-cover">
+                        <div class="p-4 bg-gray-900">
+                            <h3 class="text-xl font-bold mb-2 text-white">Studio Recording</h3>
+                            <p class="text-gray-400">2023</p>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-item rounded-lg overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/3ebc5e0c-0e6f-470a-a077-b612ac074003.png" alt="Prince Bairagi composing at home piano with handwritten musical scores scattered around" class="w-full h-64 object-cover">
+                        <div class="p-4 bg-gray-900">
+                            <h3 class="text-xl font-bold mb-2 text-white">Composing New Works</h3>
+                            <p class="text-gray-400">2024</p>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-item rounded-lg overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/7bb77056-8877-4a0e-ad91-9bda44010175.png" alt="Backstage moment with conductor discussing musical interpretation before concert" class="w-full h-64 object-cover">
+                        <div class="p-4 bg-gray-900">
+                            <h3 class="text-xl font-bold mb-2 text-white">Backstage Preparation</h3>
+                            <p class="text-gray-400">2023</p>
+                        </div>
+                    </div>
+                    
+                    <div class="gallery-item rounded-lg overflow-hidden shadow-xl transform transition-all duration-300 hover:shadow-2xl">
+                        <img src="https://storage.googleapis.com/workspace-0f70711f-8b4e-4d94-86f1-2a93ccde5887/image/d8753c1c-6b88-476b-8a82-bf7d2efb4f87.png" alt="Accepting award at ceremony with classical music dignitaries looking on" class="w-full h-64 object-cover">
+                        <div class="p-4 bg-gray-900">
+                            <h3 class="text-xl font-bold mb-2 text-white">Gramophone Award</h3>
+                            <p class="text-gray-400">2022</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button class="px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full transition-all">
+                        View More Photos
+                    </button>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Concerts Page -->
+        <div id="concerts" class="page">
+            <section class="max-w-5xl mx-auto px-6 py-12">
+                <h2 class="text-4xl font-bold mb-12 text-center">Upcoming Concerts</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6 border-b-4 border-yellow-600">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-yellow-400">Spring Recital Series</h3>
+                                <p class="text-gray-400">Paris • Berlin • Vienna</p>
+                            </div>
+                            <div class="bg-yellow-600 text-white px-3 py-1 rounded-full text-sm">Available</div>
+                        </div>
+                        <p class="text-gray-300 mb-4">Tour featuring Beethoven's complete piano sonatas cycle</p>
+                        <div class="border-t border-gray-700 pt-4">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-400">Date:</span>
+                                <span class="text-white">May 15 - June 20, 2024</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Venues:</span>
+                                <span class="text-white">Philharmonie, Salzburg Festspielhaus, Musikverein</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-6 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full transition-all">
+                            Book Tickets
+                        </button>
+                    </div>
+                    
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6 border-b-4 border-yellow-600">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-yellow-400">Summer Festival</h3>
+                                <p class="text-gray-400">Tanglewood • USA</p>
+                            </div>
+                            <div class="bg-yellow-600 text-white px-3 py-1 rounded-full text-sm">Available</div>
+                        </div>
+                        <p class="text-gray-300 mb-4">Special performance of Rachmaninoff piano concertos with Boston Symphony</p>
+                        <div class="border-t border-gray-700 pt-4">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-400">Date:</span>
+                                <span class="text-white">July 7, 2024</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Venue:</span>
+                                <span class="text-white">Tanglewood Music Center</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-6 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full transition-all">
+                            Book Tickets
+                        </button>
+                    </div>
+                    
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6 border-b-4 border-yellow-600">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-yellow-400">"Reflections" Performance</h3>
+                                <p class="text-gray-400">London • UK</p>
+                            </div>
+                            <div class="bg-yellow-600 text-white px-3 py-1 rounded-full text-sm">Available</div>
+                        </div>
+                        <p class="text-gray-300 mb-4">World premiere of new piano concerto with London Philharmonic</p>
+                        <div class="border-t border-gray-700 pt-4">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-400">Date:</span>
+                                <span class="text-white">September 22, 2024</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-400">Venue:</span>
+                                <span class="text-white">Royal Albert Hall</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-6 px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full transition-all">
+                            Book Tickets
+                        </button>
+                    </div>
+                    
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6 border-b-4 border-gray-600">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-400">Asian Tour</h3>
+                                <p class="text-gray-500">Tokyo • Seoul • Singapore</p>
+                            </div>
+                            <div class="bg-gray-600 text-gray-300 px-3 py-1 rounded-full text-sm">Coming Soon</div>
+                        </div>
+                        <p class="text-gray-500 mb-4">Tour announcement and dates to be announced</p>
+                        <div class="border-t border-gray-700 pt-4">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-500">Date:</span>
+                                <span class="text-gray-400">Early 2025</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Venues:</span>
+                                <span class="text-gray-400">TBA</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-6 px-4 py-2 bg-gray-600 text-gray-300 rounded-full cursor-not-allowed">
+                            More Info Soon
+                        </button>
+                    </div>
+                    
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6 border-b-4 border-gray-600">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-400">Recording Project</h3>
+                                <p class="text-gray-500">Berlin • Germany</p>
+                            </div>
+                            <div class="bg-gray-600 text-gray-300 px-3 py-1 rounded-full text-sm">Coming Soon</div>
+                        </div>
+                        <p class="text-gray-500 mb-4">Studio recording of new compositions</p>
+                        <div class="border-t border-gray-700 pt-4">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-500">Date:</span>
+                                <span class="text-gray-400">November 2024</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Venue:</span>
+                                <span class="text-gray-400">Berliner Philharmonie</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-6 px-4 py-2 bg-gray-600 text-gray-300 rounded-full cursor-not-allowed">
+                            More Info Soon
+                        </button>
+                    </div>
+                    
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6 border-b-4 border-gray-600">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-400">Winter Residency</h3>
+                                <p class="text-gray-500">Salzburg • Austria</p>
+                            </div>
+                            <div class="bg-gray-600 text-gray-300 px-3 py-1 rounded-full text-sm">Coming Soon</div>
+                        </div>
+                        <p class="text-gray-500 mb-4">Special holiday performances with guest musicians</p>
+                        <div class="border-t border-gray-700 pt-4">
+                            <div class="flex justify-between mb-2">
+                                <span class="text-gray-500">Date:</span>
+                                <span class="text-gray-400">December 2024</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-500">Venue:</span>
+                                <span class="text-gray-400">Mozarteum</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-6 px-4 py-2 bg-gray-600 text-gray-300 rounded-full cursor-not-allowed">
+                            More Info Soon
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-900 bg-opacity-70 rounded-lg p-8 border-l-4 border-yellow-600">
+                    <h3 class="text-2xl font-bold mb-6 text-yellow-400">Private Events</h3>
+                    <p class="text-lg text-gray-300 mb-6 leading-relaxed">
+                        Available for select private concerts, corporate events, and special occasions. 
+                        Please contact for availability and repertoire options. All private engagements 
+                        include consultation on program selection and customized performances.
+                    </p>
+                    <a href="#" class="inline-block px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full transition-all" onclick="showPageWithTransition('contact')">
+                        Enquire About Private Performances
+                    </a>
+                </div>
+            </section>
+        </div>
+        
+        <!-- Contact Page -->
+        <div id="contact" class="page">
+            <section class="max-w-5xl mx-auto px-6 py-12">
+                <h2 class="text-4xl font-bold mb-12 text-center">Contact</h2>
+                
+                <div class="flex flex-col md:flex-row gap-12 mb-16">
+                    <div class="md:w-1/2">
+                        <h3 class="text-2xl font-bold mb-6 text-yellow-400">Get in Touch</h3>
+                        <form id="contactForm" class="space-y-6">
+                            <div>
+                                <label for="name" class="block text-gray-300 mb-2">Name</label>
+                                <input type="text" id="name" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white" placeholder="Your Name">
+                            </div>
+                            <div>
+                                <label for="email" class="block text-gray-300 mb-2">Email</label>
+                                <input type="email" id="email" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white" placeholder="Your Email">
+                            </div>
+                            <div>
+                                <label for="subject" class="block text-gray-300 mb-2">Subject</label>
+                                <select id="subject" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white">
+                                    <option value="">Select a subject</option>
+                                    <option value="concert">Concert Booking</option>
+                                    <option value="private">Private Event</option>
+                                    <option value="media">Media Inquiry</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="message" class="block text-gray-300 mb-2">Message</label>
+                                <textarea id="message" rows="5" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white" placeholder="Your Message"></textarea>
+                            </div>
+                            <button type="submit" class="w-full px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full transition-all">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="md:w-1/2">
+                        <h3 class="text-2xl font-bold mb-6 text-yellow-400">Connect</h3>
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6 mb-8">
+                            <h4 class="text-xl font-bold mb-4 text-white">Management</h4>
+                            <div class="space-y-3">
+                                <p class="text-gray-300">Artistic Representation Worldwide</p>
+                                <p class="text-gray-300">Email: <a href="mailto:management@princebairagi.com" class="text-yellow-500 hover:text-yellow-300">management@princebairagi.com</a></p>
+                                <p class="text-gray-300">Phone: +1 (212) 555-1234</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6 mb-8">
+                            <h4 class="text-xl font-bold mb-4 text-white">Press & Media</h4>
+                            <div class="space-y-3">
+                                <p class="text-gray-300">Download press kit, high resolution photos and biography</p>
+                                <a href="#" class="inline-block text-yellow-500 hover:text-yellow-300 underline">Download Press Kit</a>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                            <h4 class="text-xl font-bold mb-4 text-white">Social Media</h4>
+                            <div class="flex space-x-6">
+                                <a href="#" class="text-white hover:text-yellow-500 transition-all">
+                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </a>
+                                <a href="#" class="text-white hover:text-yellow-500 transition-all">
+                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </a>
+                                <a href="#" class="text-white hover:text-yellow-500 transition-all">
+                                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4

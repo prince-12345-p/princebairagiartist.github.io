@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repertoire - Prince Bairagi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Raleway:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Raleway', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #fff;
+            overflow-x: hidden;
+            background-color: #000;
+        }
+        
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .hero-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .animated-background {
+            position: absolute;
+            width: 400%;
+            height: 100%;
+            background: linear-gradient(45deg, #111111, #222222, #111111, #000000);
+            background-size: 400% 400%;
+            animation: gradientFlow 20s ease infinite;
+        }
+        
+        @keyframes gradientFlow {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        .floating-notes {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 24px;
+            animation: floatNote 10s linear infinite;
+        }
+        
+        @keyframes floatNote {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.3;
+            }
+            80% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: #d4af37;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: #d4af37;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .piano-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        
+        .piano-animation.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .piano {
+            display: flex;
+            height: 160px;
+            width: 80%;
+            max-width: 600px;
+            position: relative;
+        }
+        
+        .key {
+            position: relative;
+            height: 100%;
+            flex-grow: 1;
+            cursor: pointer;
+        }
+        
+        .white {
+            background-color: white;
+            border: 1px solid #ccc;
+            z-index: 1;
+        }
+        
+        .black {
+            background-color: black;
+            width: 8%;
+            height: 60%;
+            margin: 0 -4% 0 -4%;
+            z-index: 2;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 30px;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #d4af37;
+            border: 4px solid #000;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 24px;
+            width: 4px;
+            height: calc(100% + 6px);
+            background-color: #d4af37;
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Continuous Background Animation -->
+    <div class="hero-animation">
+        <div class="animated-background"></div>
+    </div>
+    
+    <!-- Floating Music Notes -->
+    <div id="floating-notes-container"></div>
+    
+    <!-- Piano Transition Animation -->
+    <div class="piano-animation" id="pianoTransition">
+        <div class="piano">
+            <div class="key white" data-note="C"></div>
+            <div class="key black" data-note="Cs"></div>
+            <div class="key white" data-note="D"></div>
+            <div class="key black" data-note="Ds"></div>
+            <div class="key white" data-note="E"></div>
+            <div class="key white" data-note="F"></div>
+            <div class="key black" data-note="Fs"></div>
+            <div class="key white" data-note="G"></div>
+            <div class="key black" data-note="Gs"></div>
+            <div class="key white" data-note="A"></div>
+            <div class="key black" data-note="As"></div>
+            <div class="key white" data-note="B"></div>
+        </div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-black bg-opacity-80 backdrop-filter backdrop-blur-lg py-4 px-6 border-b border-gray-800">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-gold-500">
+                <span class="text-white">PRINCE</span> <span class="text-yellow-400">BAIRAGI</span>
+            </a>
+            
+             <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="nav-link text-white" onclick="showPageWithTransition('home')">Home</a>
+                <a href="About Page.html" class="nav-link text-white" onclick="showPageWithTransition('about')">About</a>
+                <a href="3.htm" class="nav-link text-white" onclick="showPageWithTransition('repertoire')">Repertoire</a>
+                <a href="Gallery.htm" class="nav-link text-white" onclick="showPageWithTransition('gallery')">Gallery</a>
+                <a href="5.htm" class="nav-link text-white" onclick="showPageWithTransition('concerts')">Concerts</a>
+                <a href="6.htm" class="nav-link text-white" onclick="showPageWithTransition('contact')">Contact Us</a>
+            </div>
+            
+            <button class="md:hidden text-white focus:outline-none" onclick="toggleMobileMenu()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-black bg-opacity-90 mt-2 py-4 px-6">
+           <a href="index.html" class="nav-link text-white" onclick="showPageWithTransition('home')">Home</a>
+           <a href="About Page.html" class="nav-link text-white" onclick="showPageWithTransition('about')">About</a>
+           <a href="3.htm" class="nav-link text-white" onclick="showPageWithTransition('repertoire')">Repertoire</a>
+           <a href="Gallery.htm" class="nav-link text-white" onclick="showPageWithTransition('gallery')">Gallery</a>
+           <a href="5.htm" class="nav-link text-white" onclick="showPageWithTransition('concerts')">Concerts</a>
+           <a href="6.htm" class="nav-link text-white" onclick="showPageWithTransition('contact')">Contact Us</a>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="pt-24 md:pt-28 pb-16">
+        <section class="max-w-5xl mx-auto px-6 py-12">
+            <h1 class="text-4xl md:text-6xl font-bold mb-8 text-center">Repertoire</h1>
+            
+            <div class="mb-12">
+                <h3 class="text-2xl font-bold mb-6 text-yellow-400">Solo Piano</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                        <h4 class="text-xl font-bold mb-3 text-white">Beethoven</h4>
+                        <ul class="space-y-2">
+                            <li class="text-gray-300">Piano Sonata No. 14 "Moonlight"</li>
+                            <li class="text-gray-300">Piano Sonata No. 21 "Waldstein"</li>
+                            <li class="text-gray-300">Piano Sonata No. 29 "Hammerklavier"</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                        <h4 class="text-xl font-bold mb-3 text-white">Chopin</h4>
+                        <ul class="space-y-2">
+                            <li class="text-gray-300">Ballade No. 1 in G minor</li>
+                            <li class="text-gray-300">Nocturnes (Complete)</li>
+                            <li class="text-gray-300">Études Op. 10, No. 3,4,12</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                        <h4 class="text-xl font-bold mb-3 text-white">Rachmaninoff</h4>
+                        <ul class="space-y-2">
+                            <li class="text-gray-300">Prelude in C# minor</li>
+                            <li class="text-gray-300">Prelude in G minor</li>
+                            <li class="text-gray-300">Études-Tableaux Op. 39</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <section class="mb-16">
+                <h2 class="text-3xl font-bold mb-8 text-center">Collaborative Works</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                        <h4 class="text-xl font-bold mb-3 text-white">Concertos</h4>
+                        <ul class="space-y-2">
+                            <li class="text-gray-300">Beethoven Piano Concerto No. 5 "Emperor"</li>
+                            <li class="text-gray-300">Rachmaninoff Piano Concerto No. 2</li>
+                            <li class="text-gray-300">Grieg Piano Concerto in A minor</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                        <h4 class="text-xl font-bold mb-3 text-white">Chamber Music</h4>
+                        <ul class="space-y-2">
+                            <li class="text-gray-300">Brahms Piano Quintet</li>
+                            <li class="text-gray-300">Franck Violin Sonata</li>
+                            <li class="text-gray-300">Shostakovich Piano Trio No. 2</li>
+                        </ul>
+                    </div>
+                    <div class="bg-gray-900 bg-opacity-70 rounded-lg p-6">
+                        <h4 class="text-xl font-bold mb-3 text-white">Collaborations</h4>
+                        <ul class="space-y-2">
+                            <li class="text-gray-300">With Yo-Yo Ma - Bach Cello Suites</li>
+                            <li class="text-gray-300">With Joshua Bell - Beethoven Violin Sonatas</li>
+                            <li class="text-gray-300">With Lang Lang - Piano Duets</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="bg-gray-900 bg-opacity-70 rounded-lg p-8">
+                <h2 class="text-3xl font-bold mb-8 text-center">Original Compositions</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-black bg-opacity-50 rounded-lg p-6 border-l-4 border-yellow-600">
+                        <h3 class="text-xl font-bold mb-3 text-yellow-400">Van Cliburn Competition</h3>
+                        <p class="text-gray-300 mb-2">Gold Medal, 2017</p>
+                        <p class="text-gray-400 text-sm">
+                            Joint winner of the prestigious competition, earning worldwide recognition
+                        </p>
+                    </div>
+                    
+                    <div class="bg-black bg-opacity-50 rounded-lg p-6 border-l-4 border-yellow-600">
+                        <h3 class="text-xl font-bold mb-3 text-yellow-400">Gramophone Award</h3>
+                        <p class="text-gray-300 mb-2">Editor's Choice, 2022</p>
+                        <p class="text-gray-400 text-sm">
+                            For recording of Beethoven's complete piano sonatas
+                        </p>
+                    </div>
+                    
+                    <div class="bg-black bg-opacity-50 rounded-lg p-6 border-l-4 border-yellow-600">
+                        <h3 class="text-xl font-bold mb-3 text-yellow-400">International Chopin Competition</h3>
+                        <p class="text-gray-300 mb-2">Finalist, 2015</p>
+                        <p class="text-gray-400 text-sm">
+                            One of youngest competitors in history of Warsaw competition
+                        </p>
+                    </div>
+                    
+                    <div class="bg-black bg-opacity-50 rounded-lg p-6 border-l-4 border-yellow-600">
+                        <h3 class="text-xl font-bold mb-3 text-yellow-400">BBC Music Magazine</h3>
+                        <p class="text-gray-300 mb-2">Newcomer of the Year, 2018</p>
+                        <p class="text-gray-400 text-sm">
+                            Recognizing breakthrough year in international concert scene
+                        </p>
+                    </div>
+                    
+                    <div class="bg-black bg-opacity-50 rounded-lg p-6 border-l-4 border-yellow-600">
+                        <h3 class="text-xl font-bold mb-3 text-yellow-400">Mahatma Gandhi Arts Medal</h3>
+                        <p class="text-gray-300 mb-2">2019</p>
+                        <p class="text-gray-400 text-sm">
+                            For contributions to cultural relations through music
+                        </p>
+                    </div>
+                    
+                    <div class="bg-black bg-opacity-50 rounded-lg p-6 border-l-4 border-yellow-600">
+                        <h3 class="text-xl font-bold mb-3 text-yellow-400">Juilliard Honors</h3>
+                        <p class="text-gray-300 mb-2">2010-2016</p>
+                        <p class="text-gray-400 text-sm">
+                            Recipient of Kovner Fellowship and President's Medal
+                        </p>
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+    
+    <footer class="bg-black bg-opacity-90 py-12 px-6 border-t border-gray-800">
+        <div class="max-w-5xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div class="mb-6 md:mb-0">
+                    <a href="#" class="text-2xl font-bold text-gold-500">
+                        <span class="text-white">PRINCE</span> <span class="text-yellow-400">BAIRAGI</span>
+                    </a>
+                </div>
+                
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-yellow-400 transition-colors duration-300">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-yellow-400 transition-colors duration-300">Terms</a>
+                    <a href="#" class="text-gray-400 hover:text-yellow-400 transition-colors duration-300">FAQ</a>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 pt-8 text-center">
+                <p class="text-gray-500">
+                    © 2023 Prince Bairagi. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Generate floating music notes
+        function createFloatingNotes() {
+            const notes = ['♪', '♫', '♩', '♬', '♭', '♮', '♯'];
+            const container = document.getElementById('floating-notes-container');
+            
+            for (let i = 0; i < 15; i++) {
+                const note = document.createElement('div');
+                note.className = 'floating-notes';
+                note.textContent = notes[Math.floor(Math.random() * notes.length)];
+                note.style.left = `${Math.random() * 100}vw`;
+                note.style.animationDuration = `${8 + Math.random() * 12}s`;
+                note.style.animationDelay = `${Math.random() * 5}s`;
+                container.appendChild(note);
+            }
+        }
+        
+        // Piano animation for page transitions
+        function playPianoTransition() {
+            const pianoTransition = document.getElementById('pianoTransition');
+            const pianoKeys = document.querySelectorAll('.key');
+            
+            pianoTransition.classList.add('active');
+            
+            // Play random piano keys in sequence
+            pianoKeys.forEach((key, index) => {
+                setTimeout(() => {
+                    key.classList.add('active');
+                    setTimeout(() => {
+                        key.classList.remove('active');
+                    }, 200);
+                }, index * 100);
+            });
+            
+            // Hide after animation completes
+            setTimeout(() => {
+                pianoTransition.classList.remove('active');
+            }, pianoKeys.length * 100 + 500);
+        }
+        
+        // Page transition function
+        function showPageWithTransition(pageId) {
+            playPianoTransition();
+            setTimeout(() => {
+                window.location.href = `${pageId}.html`;
+            }, 1000);
+        }
+        
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('hidden');
+        }
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            createFloatingNotes();
+            
+            // Smooth scroll for internal links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
