@@ -255,24 +255,27 @@
                 <div class="md:w-1/2">
                     <h2 class="text-2xl font-bold mb-6 text-yellow-400">Get in Touch</h2>
                     <form action="https://formsubmit.co/princebairagiartist@gmail.com" method="POST" class="space-y-6">
-    <!-- Optional: disable CAPTCHA -->
+    <!-- Disable CAPTCHA -->
     <input type="hidden" name="_captcha" value="false">
-    
-    <!-- Optional: redirect after submission -->
-    <input type="hidden" name="_next" value="https://yourwebsite.com/thank-you.html">
-    
+
+    <!-- Redirect after submission -->
+    <input type="hidden" name="_next" value="https://princebairagiartist.netlify.app/6">
+
     <div>
         <label class="block text-gray-300 mb-2">Name</label>
-        <input type="text" name="name" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white" placeholder="Your Name" required>
+        <input type="text" name="name" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white" placeholder="Your Name">
     </div>
+
     <div>
         <label class="block text-gray-300 mb-2">Email</label>
-        <input type="email" name="email" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white" placeholder="Your Email" required>
+        <input type="email" name="email" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white" placeholder="Your Email">
     </div>
+
     <div>
         <label class="block text-gray-300 mb-2">Message</label>
-        <textarea name="message" rows="5" class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white" placeholder="Your Message" required></textarea>
+        <textarea name="message" rows="5" required class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-yellow-500 text-white" placeholder="Your Message"></textarea>
     </div>
+
     <button type="submit" class="w-full px-8 py-3 bg-yellow-600 hover:bg-yellow-700 text-white rounded-full transition-all">
         Send Message
     </button>
@@ -398,4 +401,5 @@
     </script>
 </body>
 </html>
+
 
