@@ -211,38 +211,78 @@
     </div>
     
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 bg-black bg-opacity-80 backdrop-filter backdrop-blur-lg py-4 px-6 border-b border-gray-800">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="index.html" class="text-2xl font-bold text-gold-500">
-                <span class="text-white">PRINCE</span> <span class="text-yellow-400">BAIRAGI</span>
-            </a>
-            
-             <div class="hidden md:flex space-x-8">
-                <a href="index.html" class="nav-link text-white" onclick="showPageWithTransition('home')">Home</a>
-                <a href="About Page.html" class="nav-link text-white" onclick="showPageWithTransition('about')">About</a>
-                <a href="3.htm" class="nav-link text-white" onclick="showPageWithTransition('repertoire')">Repertoire</a>
-                <a href="Gallery.htm" class="nav-link text-white" onclick="showPageWithTransition('gallery')">Gallery</a>
-                <a href="5.htm" class="nav-link text-white" onclick="showPageWithTransition('concerts')">Concerts</a>
-                <a href="6.htm" class="nav-link text-white" onclick="showPageWithTransition('contact')">Contact Us</a>
-            </div>
-            
-            <button class="md:hidden text-white focus:outline-none" onclick="toggleMobileMenu()">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                </svg>
-            </button>
-        </div>
+   <!-- Navigation -->
+<nav class="fixed w-full z-50 bg-black/60 backdrop-blur-md border-b border-gray-800">
+    <div class="max-w-7xl mx-auto flex justify-between items-center py-4 px-6">
+        <!-- Logo -->
+        <a href="#" class="text-2xl font-extrabold tracking-wider flex items-center gap-1" onclick="showPage('home')">
+            <span class="text-white">PRINCE</span>
+            <span class="text-yellow-400">BAIRAGI</span>
+        </a>
         
-        <!-- Mobile Menu -->
-        <div id="mobileMenu" class="hidden md:hidden bg-black bg-opacity-90 mt-2 py-4 px-6">
-           <a href="index.html" class="nav-link text-white" onclick="showPageWithTransition('home')">Home</a>
-           <a href="About Page.html" class="nav-link text-white" onclick="showPageWithTransition('about')">About</a>
-           <a href="3.htm" class="nav-link text-white" onclick="showPageWithTransition('repertoire')">Repertoire</a>
-           <a href="Gallery.htm" class="nav-link text-white" onclick="showPageWithTransition('gallery')">Gallery</a>
-           <a href="5.htm" class="nav-link text-white" onclick="showPageWithTransition('concerts')">Concerts</a>
-           <a href="6.htm" class="nav-link text-white" onclick="showPageWithTransition('contact')">Contact Us</a>
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex space-x-8">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="About Page.html" class="nav-link">About</a>
+            <a href="3.htm" class="nav-link">Repertoire</a>
+            <a href="Gallery.htm" class="nav-link">Gallery</a>
+            <a href="5.htm" class="nav-link">Concerts</a>
+            <a href="6.htm" class="nav-link">Contact</a>
         </div>
-    </nav>
+
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden text-white focus:outline-none" onclick="toggleMobileMenu()">
+            <svg id="menuIcon" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden flex flex-col bg-black/90 px-6 py-4 space-y-4">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="About Page.html" class="nav-link">About</a>
+        <a href="3.htm" class="nav-link">Repertoire</a>
+        <a href="Gallery.htm" class="nav-link">Gallery</a>
+        <a href="5.htm" class="nav-link">Concerts</a>
+        <a href="6.htm" class="nav-link">Contact</a>
+    </div>
+</nav>
+
+<style>
+    /* Modern nav-link styles */
+    .nav-link {
+        position: relative;
+        color: white;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+    .nav-link::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -3px;
+        width: 0%;
+        height: 2px;
+        background: linear-gradient(to right, #facc15, #fbbf24);
+        transition: width 0.3s ease;
+    }
+    .nav-link:hover {
+        color: #facc15;
+    }
+    .nav-link:hover::after {
+        width: 100%;
+    }
+</style>
+
+<script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobileMenu');
+        menu.classList.toggle('hidden');
+    }
+</script>
+
     
     <!-- Main Content -->
     <main class="pt-24 md:pt-28 pb-16">
@@ -461,4 +501,5 @@
     </script>
 </body>
 </html>
+
 
